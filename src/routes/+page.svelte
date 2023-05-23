@@ -1,5 +1,9 @@
 <script lang="ts">
     import { append } from "svelte/internal";
+    import {app} from "../lib/my_firebase"
+
+    console.log(app);
+    
 
     interface TodoEntry {
         text: string
