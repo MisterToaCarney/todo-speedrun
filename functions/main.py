@@ -3,14 +3,23 @@
 # Deploy with `firebase deploy`
 
 from firebase_functions import https_fn
-from firebase_admin import initialize_app
+from firebase_admin import initialize_app, firestore
 import numpy as np
-import pandas as pd
 
 initialize_app()
 
+REGION = "australia-southeast1"
 
-@https_fn.on_request(region="australia-southeast1")
+@https_fn.on_request(region=REGION)
 def on_request_example(req: https_fn.Request) -> https_fn.Response:
     x = np.random.randn(10,10)
     return https_fn.Response(np.array2string(x))
+
+@https_fn.on_request(region=REGION)
+def add_todo(req: https_fn.Request) -> https_fn.Response:
+    # client = firestore.client()
+    # todos = client.collection("todos")
+    # for i in range(10):
+    #     new_doc = todos.document()
+    #     new_doc.set({"testing123": "testing123_" + str(i), "i": i})
+    return(https_fn.Response("Done"))
