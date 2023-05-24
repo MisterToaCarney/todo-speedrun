@@ -1,12 +1,28 @@
 <script lang="ts">
-    import { doc, setDoc, getDocs, collection, query } from "firebase/firestore"
+    import { getDocs, doc, collection, query, addDoc, onSnapshot, deleteDoc, setDoc } from "firebase/firestore"
     import { db } from "../lib/my_firebase"
+    import { onDestroy } from "svelte";
 
     console.log(db);
+
+    const q = query(collection(db, "/todos"))
     
-    
+    const unsubscribe = onSnapshot(q, querySnapshot => {
+        todos = []
+        querySnapshot.forEach(doc => {
+            todos.push({
+                id: doc.id,
+                text: doc.data().text,
+                completed: doc.data().completed
+            })
+        })
+        todos = todos
+    })
+
+
     // Types
     interface TodoEntry {
+        id: string
         text: string
         completed: boolean
     }
@@ -17,25 +33,31 @@
 
     // functions
     function addTodo(text: string) {
-        todos.push({
+        const ref = collection(db, "/todos")
+
+        addDoc(ref, {
             text: text,
             completed: false
-        });
-        todos = todos;
+        })
+
         inputValue = "";
     }
-
-    async function runQuery() {
-        const q = query(collection(db, "/todos"))
-        const querySnapshot = await getDocs(q)
-
-        querySnapshot.forEach(document => {
-            console.log(document.data());
+    function removeTodo(id: string) {
+        const ref = doc(db, "/todos", id)
+        deleteDoc(ref)
+    }
+    function updateTodo(id: string, newTodo: TodoEntry) {
+        console.log(newTodo);
+        
+        const ref = doc(db, "/todos", id)
+        setDoc(ref, {
+            text: newTodo.text,
+            completed: newTodo.completed
         })
     }
+    
+    onDestroy(unsubscribe)
 
-    addTodo("test")
-    runQuery()
 </script>
 
 
@@ -55,6 +77,7 @@
             <tr>
                 <th class="w-0"></th>
                 <th class="w-0"></th>
+                <th class="w-0">ID</th>
                 <th>Todo</th>
                 <th class="w-0"></th>
             </tr>
@@ -62,16 +85,15 @@
           <tbody>
             {#each todos as todo, i}
                 <tr>
-                    <td class=""><input type="checkbox" class="checkbox align-middle" bind:checked={todo.completed}></td>
+                    <td class=""><input type="checkbox" class="checkbox align-middle" bind:checked={todo.completed} on:change={e => updateTodo(todo.id, {...todo})}></td>
                     <td class="">{i+1}</td>
+                    <td>{todo.id}</td>
                     <td>{todo.text}</td>
-                    <td><button on:click={() => {todos.splice(i, 1); todos = todos}} class="btn btn-error">Remove</button></td>
+                    <td><button on:click={e => removeTodo(todo.id)} class="btn btn-error">Remove</button></td>
                 </tr>
             {/each}
           </tbody>
         </table>
       </div>
-
-      <button class="btn" on:click={runQuery}>Okay</button>
 </main>
 
