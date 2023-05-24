@@ -1,19 +1,21 @@
 <script lang="ts">
-    import { append } from "svelte/internal";
-    import {app} from "../lib/my_firebase"
+    import { doc, setDoc, getDocs, collection, query } from "firebase/firestore"
+    import { db } from "../lib/my_firebase"
 
-    console.log(app);
+    console.log(db);
     
-
+    
+    // Types
     interface TodoEntry {
         text: string
         completed: boolean
     }
 
+    // State
     let todos: Array<TodoEntry> = []
-
     let inputValue = "";
 
+    // functions
     function addTodo(text: string) {
         todos.push({
             text: text,
@@ -23,9 +25,17 @@
         inputValue = "";
     }
 
-    $: console.log(todos)
+    async function runQuery() {
+        const q = query(collection(db, "/todos"))
+        const querySnapshot = await getDocs(q)
+
+        querySnapshot.forEach(document => {
+            console.log(document.data());
+        })
+    }
 
     addTodo("test")
+    runQuery()
 </script>
 
 
@@ -61,5 +71,7 @@
           </tbody>
         </table>
       </div>
+
+      <button class="btn" on:click={runQuery}>Okay</button>
 </main>
 

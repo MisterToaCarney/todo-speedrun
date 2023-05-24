@@ -17,9 +17,9 @@ def on_request_example(req: https_fn.Request) -> https_fn.Response:
 
 @https_fn.on_request(region=REGION)
 def add_todo(req: https_fn.Request) -> https_fn.Response:
-    # client = firestore.client()
-    # todos = client.collection("todos")
-    # for i in range(10):
-    #     new_doc = todos.document()
-    #     new_doc.set({"testing123": "testing123_" + str(i), "i": i})
+    client = firestore.client()
+    todos = client.collection("todos")
+    for i in range(10):
+        new_doc = todos.document()
+        new_doc.set({"testing123": "testing123_" + str(i), "i": i})
     return(https_fn.Response("Done"))
