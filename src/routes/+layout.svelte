@@ -3,7 +3,7 @@
     
     import "../app.css"
     
-    export let data: LayoutData;
+    // export let data: LayoutData;
 </script>
 
 <slot />
